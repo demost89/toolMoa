@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>올인원 유틸리티 허브</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f5f5f5; margin:0; padding:0; }
+    header { background: #1A3E5E; color: #fff; padding: 1rem; text-align: center; }
+    nav { display: flex; justify-content: center; background: #fff; }
+    nav button { flex:1; padding: 1rem; border:none; background: #fff; cursor: pointer; font-size: 1rem; }
+    nav button.active { background: #1A3E5E; color: #fff; }
+    main { max-width: 800px; margin: 2rem auto; background: #fff; padding: 1rem; border-radius: 8px; }
+    section { display: none; }
+    section.active { display: block; }
+    label, select, input, textarea { display: block; width:100%; margin-bottom: 1rem; }
+    input, select, textarea { padding: 0.5rem; font-size: 1rem; }
+    button.convert { padding: 0.75rem; background: #1A3E5E; color: #fff; border:none; cursor:pointer; font-size: 1rem; border-radius:4px; }
+    .result { margin-top: 1rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <header><h1>올인원 유틸리티 허브</h1></header>
+  <nav>
+    <button id="btnCurrency" class="active">환율 변환기</button>
+    <button id="btnUnit">단위 변환기</button>
+    <button id="btnChar">글자 수 세기</button>
+  </nav>
+  <main>
+    <section id="currency" class="active">
+      <h2>환율 변환기</h2>
+      <label>금액 <input type="number" id="curAmount" placeholder="예: 100"/></label>
+      <label>변환 전 통화
+        <select id="curFrom"><option value="USD">USD</option><option value="EUR">EUR</option><option value="KRW" selected>KRW</option><option value="JPY">JPY</option></select>
+      </label>
+      <label>변환 후 통화
+        <select id="curTo"><option value="KRW">KRW</option><option value="USD">USD</option><option value="EUR">EUR</option><option value="JPY">JPY</option></select>
+      </label>
+      <button class="convert" onclick="convertCurrency()">변환하기</button>
+      <div class="result" id="curResult"></div>
+    </section>
+    <section id="unit">
+      <h2>단위 변환기</hn>
+      <label>숫자 입력 <input type="number" id="unitValue" placeholder="예: 100"/></label>
+      <label>단위 선택
+        <select id="unitType">
+          <optgroup label="길이">
+            <option value="m_to_km">미터 → 킬로미터</option>
+            <option value="km_to_m">킬로미터 → 미터</option>
+            <option value="m_to_ft">미터 → 피트</option>
+          </optgroup>
+          <optgroup label="무게">
+            <option value="kg_to_g">킬로그램 → 그램</option>
+            <option value="g_to_kg">그램 → 킬로그램</option>
+            <option value="kg_to_lb">킬로그램 → 파운드</option>
+          </optgroup>
+          <optgroup label="온도">
+            <option value="c_to_f">섭씨 → 화씨</option>
+            <option value="f_to_c">화씨 → 섭씨</option>
+          </optgroup>
+        </select>
+      </label>
+      <button class="convert" onclick="convertUnit()">변환하기</button>
+      <div class="result" id="unitResult"></div>
+    </section>
+    <section id="char">
+      <h2>글자 수 세기</h2>
+      <textarea id="charText" rows="6" placeholder="여기에 텍스트를 입력하세요"></textarea>
+      <div class="result">글자 수: <span id="charCount">0</span></div>
+    </section>
+  </main>
+  <script>
+    // 탭 전환
+    const sections = {currency: 'btnCurrency', unit: 'btnUnit', char: 'btnChar'};
+    Object.keys(sections).forEach(id => {
+      document.getElementById(sections[id]).addEventListener('click', ()=>{
+        document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+        document.getElementById(sections[id]).classList.add('active');
+        document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+      });
+    });
+    // 환율 변환 (무료 API 활용)
+    async function convertCurrency() {
+      const amount = parseFloat(document.getElementById('curAmount').value);
+      const from = document.getElementById('curFrom').value;
+      const to = document.getElementById('curTo').value;
+      if(isNaN(amount)){ alert('금액을 입력하세요.'); return; }
+      try {
+        const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${from}`);
+        const data = await res.json();
+        const rate = data.rates[to];
+        const result = (amount * rate).toLocaleString(undefined, {maximumFractionDigits:2});
+        document.getElementById('curResult').textContent = `${amount} ${from} = ${result} ${to}`;
+      } catch (e) {
+        document.getElementById('curResult').textContent = '환율 정보를 불러오는 중 오류가 발생했습니다.';
+      }
+    }
+    // 단위 변환
+    function convertUnit() {
+      const val = parseFloat(document.getElementById('unitValue').value);
+      const type = document.getElementById('unitType').value;
+      if(isNaN(val)){ alert('숫자를 입력하세요.'); return; }
+      let res;
+      switch(type) {
+        case 'm_to_km': res = val/1000 + ' km'; break;
+        case 'km_to_m': res = val*1000 + ' m'; break;
+        case 'm_to_ft': res = (val*3.28084).toFixed(2) + ' ft'; break;
+        case 'kg_to_g': res = val*1000 + ' g'; break;
+        case 'g_to_kg': res = val/1000 + ' kg'; break;
+        case 'kg_to_lb': res = (val*2.20462).toFixed(2) + ' lb'; break;
+        case 'c_to_f': res = ((val*9/5)+32).toFixed(2) + ' °F'; break;
+        case 'f_to_c': res = ((val-32)*5/9).toFixed(2) + ' °C'; break;
+        default: res = '지원하지 않는 변환입니다.';
+      }
+      document.getElementById('unitResult').textContent = res;
+    }
+    // 글자 수 세기
+    document.getElementById('charText').addEventListener('input', e=>{
+      document.getElementById('charCount').textContent = e.target.value.length;
+    });
+  </script>
+</body>
+</html>
