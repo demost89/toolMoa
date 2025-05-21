@@ -31,6 +31,7 @@
     h1 { font-size:2.5rem; margin-bottom:1rem; text-align:center; }
     p.subtitle { font-size:1.2rem; color:#555; margin-bottom:2rem; text-align:center; }
     .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1.5rem; }
+    .card { cursor:pointer; }
     .card { background:#fff; padding:1.5rem; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.05); transition:transform .2s, box-shadow .2s; display:flex; flex-direction:column; }
     .card:hover { transform:translateY(-6px); box-shadow:0 6px 12px rgba(0,0,0,0.1); }
     .card h3 { font-size:1.25rem; margin-bottom:.5rem; }
@@ -48,25 +49,25 @@
   <header>
     <div class="logo" onclick="location.href='index.html'">툴모아</div>
     <nav class="nav-links">
-      <a href="character-count.html">글자수 세기</a>
-      <a href="qr-code.html">QR 코드</a>
-      <a href="password-generator.html">비밀번호</a>
-      <a href="date-calculator.html">날짜 계산</a>
-      <a href="unit-converter.html">단위 변환</a>
-      <a href="color-converter.html">색상 변환</a>
-      <a href="url-encoder.html">URL 인코더</a>
-      <a href="base64.html">Base64</a>
+      <a href="character-count.html" class="active">글자수 세기</a>
+      <a href="qr-code.html">QR 코드 생성기</a>
+      <a href="password-generator.html">비밀번호 생성기</a>
+      <a href="date-calculator.html">날짜 계산기</a>
+      <a href="unit-converter.html">단위 변환기</a>
+      <a href="color-converter.html">색상 코드 변환기</a>
+      <a href="url-encoder.html">URL 인코더/디코더</a>
+      <a href="base64.html">Base64 인코더/디코더</a>
     </nav>
     <div class="menu-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
     <nav class="mobile-nav" id="mobileNav">
-      <a href="character-count.html">글자수 세기</a>
-      <a href="qr-code.html">QR 코드</a>
-      <a href="password-generator.html">비밀번호</a>
-      <a href="date-calculator.html">날짜 계산</a>
-      <a href="unit-converter.html">단위 변환</a>
-      <a href="color-converter.html">색상 변환</a>
-      <a href="url-encoder.html">URL 인코더</a>
-      <a href="base64.html">Base64</a>
+      <a href="character-count.html" class="active">글자수 세기</a>
+      <a href="qr-code.html">QR 코드 생성기</a>
+      <a href="password-generator.html">비밀번호 생성기</a>
+      <a href="date-calculator.html">날짜 계산기</a>
+      <a href="unit-converter.html">단위 변환기</a>
+      <a href="color-converter.html">색상 코드 변환기</a>
+      <a href="url-encoder.html">URL 인코더/디코더</a>
+      <a href="base64.html">Base64 인코더/디코더</a>
     </nav>
   </header>
   <main>
@@ -119,6 +120,12 @@
     function toggleMenu() { document.getElementById('mobileNav').classList.toggle('open'); }
     window.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.nav-links a, .mobile-nav a').forEach(a => a.classList.toggle('active', location.pathname.endsWith(a.getAttribute('href'))));
+      document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', () => {
+          const link = card.querySelector('a');
+          if (link) window.location.href = link.href;
+        });
+      });
     });
   </script>
 </body>
