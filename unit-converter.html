@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>단위 변환기 - 툴모아</title>
+  <!-- Pretendard & Noto Sans KR -->
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --primary-color: #4a0bdb; --bg: #fff; --text: #333; --header-h: 56px; --font: 'Pretendard','Noto Sans KR',sans-serif; }
+    *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:var(--font); background:var(--bg); color:var(--text); }
+    header { position:fixed; top:0; left:0; width:100%; height:var(--header-h); background:var(--primary-color); display:flex; align-items:center; justify-content:space-between; padding:0 1rem; z-index:1000; }
+    .logo { color:#fff; font-size:1.25rem; font-weight:700; cursor:pointer; }
+    .nav-links { display:flex; gap:1rem; overflow-x:auto; white-space:nowrap; -ms-overflow-style:none; scrollbar-width:none; }
+    .nav-links::-webkit-scrollbar { display:none; }
+    .nav-links a { color:#fff; text-decoration:none; font-weight:600; padding:.5rem; }
+    .nav-links a.active { border-bottom:2px solid #fff; }
+    .menu-toggle { display:none; flex-direction:column; gap:4px; cursor:pointer; }
+    .menu-toggle span { width:24px; height:3px; background:#fff; border-radius:2px; }
+    .mobile-nav { display:none; position:absolute; top:var(--header-h); left:0; width:100%; background:var(--primary-color); flex-direction:column; }
+    .mobile-nav a { padding:1rem; color:#fff; text-decoration:none; border-bottom:1px solid rgba(255,255,255,.2); }
+    .mobile-nav a.active { background:rgba(255,255,255,.1); }
+
+    main { padding:calc(var(--header-h) + 4rem) 1rem 2rem; max-width:600px; margin:0 auto; }
+    h1 { font-size:1.75rem; margin-bottom:1rem; text-align:center; }
+    .subtitle { font-size:1rem; color:#555; margin-bottom:2rem; text-align:center; }
+    h2 { font-size:1.25rem; margin:1.5rem 0 .75rem; color:var(--primary-color); text-align:left; }
+
+    .config-group { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; align-items:center; margin-bottom:1rem; }
+    .config-group label { font-size:1rem; color:#555; display:flex; flex-direction:column; align-items:flex-start; }
+    .config-group input[type=number], .config-group select { margin-top:.25rem; padding:.5rem; font-size:1rem; border:1px solid #ccc; border-radius:4px; width:120px; }
+    .config-group button { padding:.75rem 1.5rem; background:var(--primary-color); color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:1rem; }
+
+    .result { text-align:center; margin-top:2rem; font-size:1.5rem; color:var(--text); }
+    .result p { margin:.5rem 0; }
+    .result p strong { font-size:2rem; }
+
+    @media(max-width:600px) {
+      .nav-links { display:none; }
+      .menu-toggle { display:flex; }
+      .mobile-nav.open { display:flex; }
+      main { padding-top:calc(var(--header-h) + 4rem); }
+      .config-group { flex-direction:column; }
+      .config-group button, .config-group input[type=number], .config-group select { width:100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" onclick="location.href='index.html'">툴모아</div>
+    <nav class="nav-links">
+      <a href="character-count.html">글자수 세기</a>
+      <a href="qr-code.html">QR 코드 생성기</a>
+      <a href="password-generator.html">비밀번호 생성기</a>
+      <a href="date-calculator.html">날짜 계산기</a>
+      <a href="unit-converter.html" class="active">단위 변환기</a>
+      <a href="color-converter.html">색상 코드 변환기</a>
+      <a href="url-encoder.html">URL 인코더/디코더</a>
+      <a href="base64.html">Base64 인코더/디코더</a>
+    </nav>
+    <div class="menu-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <nav class="mobile-nav" id="mobileNav">
+      <a href="character-count.html">글자수 세기</a>
+      <a href="qr-code.html">QR 코드 생성기</a>
+      <a href="password-generator.html">비밀번호 생성기</a>
+      <a href="date-calculator.html">날짜 계산기</a>
+      <a href="unit-converter.html">단위 변환기</a>
+      <a href="color-converter.html">색상 코드 변환기</a>
+      <a href="url-encoder.html">URL 인코더/디코더</a>
+      <a href="base64.html">Base64 인코더/디코더</a>
+    </nav>
+  </header>
+  <main>
+    <h1>단위 변환기</h1>
+    <p class="subtitle">다양한 단위 간에 간편하게 변환하세요.</p>
+
+    <h2>단위 선택</h2>
+    <div class="config-group">
+      <label>카테고리<select id="category"></select></label>
+    </div>
+
+    <h2>값 입력 및 변환</h2>
+    <div class="config-group">
+      <label>값<input type="number" id="inputValue" placeholder="0"></label>
+      <label>단위 (from)<select id="fromUnit"></select></label>
+      <label>단위 (to)<select id="toUnit"></select></label>
+      <button id="convertBtn">변환</button>
+      <button id="resetBtn">초기화</button>
+    </div>
+
+    <div class="result" id="result"></div>
+  </main>
+  <script>
+    function toggleMenu(){ document.getElementById('mobileNav').classList.toggle('open'); }
+    const units = {
+      distance: { m:1, km:1000, mi:1609.34, ft:0.3048 },
+      weight: { g:1, kg:1000, lb:453.592, oz:28.3495 },
+      capacity: { L:1, mL:0.001, gal:3.78541 },
+      volume: { 'm³':1000, 'cm³':0.001, 'in³':0.0163871 },
+      temperature: { C:'C', F:'F', K:'K' },
+      speed: { 'm/s':1, 'km/h':0.277778, mph:0.44704 },
+      area: { 'm²':1, 'km²':1000000, 'ft²':0.092903, acre:4046.86, 평:3.3058 },
+      pressure: { Pa:1, bar:100000, psi:6894.76 },
+      energy: { J:1, kJ:1000, kcal:4184, Wh:3600 },
+      flow: { 'L/min':1, 'm³/h':16.6667 },
+      data: { B:1, KB:1024, MB:1048576, GB:1073741824 },
+      time: { s:1, min:60, h:3600, day:86400 }
+    };
+    const labels = { distance:'거리', weight:'무게', capacity:'용량', volume:'체적', temperature:'온도', speed:'속도', area:'면적', pressure:'압력', energy:'에너지/일', flow:'유량', data:'데이터 크기', time:'시간' };
+    const category = document.getElementById('category'), fromUnit = document.getElementById('fromUnit'), toUnit = document.getElementById('toUnit'), inputValue = document.getElementById('inputValue'), resultDiv = document.getElementById('result');
+
+    function populateUnits() {
+      const cat = category.value;
+      fromUnit.innerHTML = toUnit.innerHTML = '';
+      Object.keys(units[cat]).forEach(u => {
+        fromUnit.add(new Option(u,u));
+        toUnit.add(new Option(u,u));
+      });
+      resultDiv.innerHTML = '';
+      inputValue.value = '';
+      inputValue.focus();
+    }
+
+    function convert() {
+      let val = parseFloat(inputValue.value) || 0;
+      const cat = category.value;
+      const from = fromUnit.value, to = toUnit.value;
+      let res;
+      if(cat === 'temperature') {
+        if(from === 'F') val = (val - 32) * 5/9;
+        else if(from === 'K') val = val - 273.15;
+        if(to === 'F') res = val * 9/5 + 32;
+        else if(to === 'K') res = val + 273.15;
+        else res = val;
+      } else {
+        const base = val * units[cat][from];
+        res = base / units[cat][to];
+      }
+      resultDiv.innerHTML = `<p>${val} ${from} = <strong>${res.toFixed(4)}</strong> ${to}</p>`;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      Object.keys(units).forEach(c => category.add(new Option(labels[c], c)));
+      populateUnits();
+      category.addEventListener('change', populateUnits);
+      document.getElementById('convertBtn').addEventListener('click', convert);
+      document.getElementById('resetBtn').addEventListener('click', populateUnits);
+      [category, inputValue, fromUnit, toUnit].forEach(el => el.addEventListener('keydown', e => {
+        if(e.key === 'Enter') {
+          e.preventDefault();
+          convert();
+        }
+      }));
+      const current = location.pathname.split('/').pop();
+      document.querySelectorAll('.nav-links a, .mobile-nav a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === current));
+    });
+  </script>
+</body>
+</html>

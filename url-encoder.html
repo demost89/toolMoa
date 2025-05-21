@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL 인코더/디코더 - 툴모아</title>
+  <!-- Pretendard & Noto Sans KR -->
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --primary-color: #4a0bdb; --bg: #fff; --text: #333; --header-h: 56px; --font: 'Pretendard','Noto Sans KR',sans-serif; }
+    *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:var(--font); background:var(--bg); color:var(--text); }
+    header { position:fixed; top:0; left:0; width:100%; height:var(--header-h); background:var(--primary-color); display:flex; align-items:center; justify-content:space-between; padding:0 1rem; z-index:1000; }
+    .logo { color:#fff; font-size:1.25rem; font-weight:700; cursor:pointer; }
+    .nav-links { display:flex; gap:1rem; overflow-x:auto; white-space:nowrap; -ms-overflow-style:none; scrollbar-width:none; }
+    .nav-links::-webkit-scrollbar { display:none; }
+    .nav-links a { color:#fff; text-decoration:none; font-weight:600; padding:.5rem; }
+    .nav-links a.active { border-bottom:2px solid #fff; }
+    .menu-toggle { display:none; flex-direction:column; gap:4px; cursor:pointer; }
+    .menu-toggle span { width:24px; height:3px; background:#fff; border-radius:2px; }
+    .mobile-nav { display:none; position:absolute; top:var(--header-h); left:0; width:100%; background:var(--primary-color); flex-direction:column; z-index:999; }
+    .mobile-nav a { padding:1rem; color:#fff; text-decoration:none; border-bottom:1px solid rgba(255,255,255,.2); }
+    .mobile-nav a.active { background:rgba(255,255,255,.1); }
+    main { padding:calc(var(--header-h) + 6rem) 1rem 2rem; max-width:600px; margin:0 auto; }
+    h1 { font-size:1.75rem; margin:1.5rem 0 .75rem; text-align:center; scroll-margin-top:calc(var(--header-h) + 2rem); }
+    .subtitle { font-size:1.1rem; color:#444; margin:0.5rem 0 1.5rem; text-align:center; }
+    h2 { font-size:1.25rem; margin:3rem 0 1rem; color:var(--primary-color); scroll-margin-top:calc(var(--header-h) + 2rem); }
+    .field { margin-bottom:1rem; display:flex; flex-direction:column; }
+    .field label { font-size:1rem; color:#555; margin-bottom:.5rem; }
+    textarea { width:100%; min-height:160px; padding:.5rem; font-size:1rem; border:1px solid #ccc; border-radius:4px; resize:vertical; }
+    textarea[readonly] { background:#f9f9f9; }
+    .buttons { display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem; }
+    .buttons button { flex:1; min-width:80px; padding:.75rem 1.5rem; background:var(--primary-color); color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:1rem; }
+    @media(max-width:600px) {
+      .nav-links { display:none; }
+      .menu-toggle { display:flex; }
+      .mobile-nav.open { display:flex; }
+      .buttons { flex-direction:column; }
+      .buttons button { width:100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" onclick="location.href='index.html'">툴모아</div>
+    <nav class="nav-links">
+      <a href="character-count.html">글자수 세기</a>
+      <a href="qr-code.html">QR 코드 생성기</a>
+      <a href="password-generator.html">비밀번호 생성기</a>
+      <a href="date-calculator.html">날짜 계산기</a>
+      <a href="unit-converter.html">단위 변환기</a>
+      <a href="color-converter.html">색상 코드 변환기</a>
+      <a href="url-encoder.html" class="active">URL 인코더/디코더</a>
+      <a href="base64.html">Base64 인코더/디코더</a>
+    </nav>
+    <div class="menu-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <nav class="mobile-nav" id="mobileNav">
+      <a href="character-count.html">글자수 세기</a>
+      <a href="qr-code.html">QR 코드 생성기</a>
+      <a href="password-generator.html">비밀번호 생성기</a>
+      <a href="date-calculator.html">날짜 계산기</a>
+      <a href="unit-converter.html">단위 변환기</a>
+      <a href="color-converter.html">색상 코드 변환기</a>
+      <a href="url-encoder.html">URL 인코더/디코더</a>
+      <a href="base64.html">Base64 인코더/디코더</a>
+    </nav>
+  </header>
+  <main>
+    <h1>URL 인코더/디코더</h1>
+    <p class="subtitle">입력과 결과를 분리, 단축키와 클리어 기능을 추가했습니다.</p>
+
+    <h2>입력 텍스트</h2>
+    <div class="field">
+      <label for="inputArea">입력</label>
+      <textarea id="inputArea" placeholder="텍스트 또는 URL을 입력하세요"></textarea>
+    </div>
+
+    <h2>결과 텍스트</h2>
+    <div class="field">
+      <label for="outputArea">결과</label>
+      <textarea id="outputArea" readonly placeholder="결과가 여기에 표시됩니다"></textarea>
+    </div>
+
+    <div class="buttons">
+      <button id="encodeBtn">인코딩<br><small>(Ctrl+Enter)</small></button>
+      <button id="decodeBtn">디코딩<br><small>(Ctrl+Shift+Enter)</small></button>
+      <button id="copyBtn">복사</button>
+      <button id="clearBtn">지우기</button>
+    </div>
+  </main>
+  <script>
+    function toggleMenu(){document.getElementById('mobileNav').classList.toggle('open')}
+    window.addEventListener('DOMContentLoaded',()=>{
+      const current=location.pathname.split('/').pop();
+      document.querySelectorAll('.nav-links a, .mobile-nav a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')===current));
+      const inputArea=document.getElementById('inputArea');
+      const outputArea=document.getElementById('outputArea');
+      const encodeBtn=document.getElementById('encodeBtn');
+      const decodeBtn=document.getElementById('decodeBtn');
+      document.getElementById('copyBtn').addEventListener('click',()=>{outputArea.select();document.execCommand('copy');alert('복사되었습니다')});
+      document.getElementById('clearBtn').addEventListener('click',()=>{inputArea.value='';outputArea.value='';inputArea.focus()});
+      encodeBtn.addEventListener('click',()=>{outputArea.value=encodeURIComponent(inputArea.value);outputArea.scrollTop=0});
+      decodeBtn.addEventListener('click',()=>{try{outputArea.value=decodeURIComponent(inputArea.value)}catch{alert('잘못된 인코딩 문자열입니다')}outputArea.scrollTop=0});
+      inputArea.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.ctrlKey&&e.shiftKey){e.preventDefault();decodeBtn.click()}else if(e.key==='Enter'&&e.ctrlKey){e.preventDefault();encodeBtn.click()}});
+    });
+  </script>
+</body>
+</html>

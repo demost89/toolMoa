@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>색상 코드 변환기 - 툴모아</title>
+  <!-- Pretendard & Noto Sans KR -->
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --primary-color: #4a0bdb; --bg: #fff; --text: #333; --header-h: 56px; --font: 'Pretendard','Noto Sans KR',sans-serif; }
+    *,*::before,*::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); }
+    header { position: fixed; top: 0; left: 0; width: 100%; height: var(--header-h); background: var(--primary-color); display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; z-index: 1000; }
+    .logo { color: #fff; font-size: 1.25rem; font-weight: 700; cursor: pointer; }
+    .nav-links { display: flex; gap: 1rem; overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a { color: #fff; text-decoration: none; font-weight: 600; padding: .5rem; }
+    .nav-links a.active { border-bottom: 2px solid #fff; }
+    .menu-toggle { display: none; flex-direction: column; gap: 4px; cursor: pointer; }
+    .menu-toggle span { width: 24px; height: 3px; background: #fff; border-radius: 2px; }
+    .mobile-nav { display: none; position: absolute; top: var(--header-h); left: 0; width: 100%; background: var(--primary-color); flex-direction: column; z-index: 999; }
+    .mobile-nav a { padding: 1rem; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.2); }
+    .mobile-nav a.active { background: rgba(255,255,255,.1); }
+
+    main { padding: calc(var(--header-h) + 4rem) 1rem 2rem; max-width: 600px; margin: 0 auto; }
+    h1 { font-size: 1.75rem; margin-bottom: 1rem; text-align: center; }
+    .subtitle { font-size: 1rem; color: #555; margin-bottom: 2rem; text-align: center; }
+
+    .converter { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+    .field { display: flex; flex-direction: column; gap: .5rem; }
+    .field label { font-size: 1rem; color: #555; }
+    .field input { padding: .5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; }
+    .field.invalid input { border-color: #e74c3c; }
+    .field button { margin-top: .5rem; padding: .5rem; background: var(--primary-color); color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: .9rem; align-self: flex-end; }
+
+    .preview { margin-top: 2rem; height: 100px; border: 1px solid #ccc; border-radius: 4px; position: relative; }
+    .preview-code { position: absolute; bottom: 8px; left: 8px; background: rgba(255,255,255,0.7); padding: 4px 8px; border-radius: 4px; font-size: .9rem; }
+
+    @media(max-width:600px) {
+      .nav-links { display: none; }
+      .menu-toggle { display: flex; }
+      .mobile-nav.open { display: flex; }
+      main { padding-top: calc(var(--header-h) + 4rem); }
+      .converter { grid-template-columns: 1fr; }
+      .field button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" onclick="location.href='index.html'">툴모아</div>
+    <nav class="nav-links">
+      <a href="character-count.html">글자수 세기</a>
+      <a href="qr-code.html">QR 코드 생성기</a>
+      <a href="password-generator.html">비밀번호 생성기</a>
+      <a href="date-calculator.html">날짜 계산기</a>
+      <a href="unit-converter.html">단위 변환기</a>
+      <a href="color-converter.html" class="active">색상 코드 변환기</a>
+      <a href="url-encoder.html">URL 인코더/디코더</a>
+      <a href="base64.html">Base64 인코더/디코더</a>
+    </nav>
+    <div class="menu-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <nav class="mobile-nav" id="mobileNav">
+      <a href="character-count.html">글자수 세기</a>
+      <a href="qr-code.html">QR 코드 생성기</a>
+      <a href="password-generator.html">비밀번호 생성기</a>
+      <a href="date-calculator.html">날짜 계산기</a>
+      <a href="unit-converter.html">단위 변환기</a>
+      <a href="color-converter.html">색상 코드 변환기</a>
+      <a href="url-encoder.html">URL 인코더/디코더</a>
+      <a href="base64.html">Base64 인코더/디코더</a>
+    </nav>
+  </header>
+  <main>
+    <h1>색상 코드 변환기</h1>
+    <p class="subtitle">HEX, RGB, HSL 포맷 간 실시간 변환 및 복사 기능을 제공합니다.</p>
+
+    <div class="converter">
+      <div class="field" id="hexField">
+        <label for="hexInput">HEX</label>
+        <input type="text" id="hexInput" placeholder="#ffffff">
+        <button class="copy-btn" data-target="hexInput">복사</button>
+      </div>
+      <div class="field" id="rgbField">
+        <label for="rgbInput">RGB</label>
+        <input type="text" id="rgbInput" placeholder="rgb(255,255,255)">
+        <button class="copy-btn" data-target="rgbInput">복사</button>
+      </div>
+      <div class="field" id="hslField">
+        <label for="hslInput">HSL</label>
+        <input type="text" id="hslInput" placeholder="hsl(0,0%,100%)">
+        <button class="copy-btn" data-target="hslInput">복사</button>
+      </div>
+    </div>
+
+    <div class="preview" id="preview">
+      <div class="preview-code" id="previewCode"></div>
+    </div>
+  </main>
+  <script>
+    function toggleMenu() { document.getElementById('mobileNav').classList.toggle('open'); }
+    window.addEventListener('DOMContentLoaded', ()=>{
+      const hexInput = document.getElementById('hexInput');
+      const rgbInput = document.getElementById('rgbInput');
+      const hslInput = document.getElementById('hslInput');
+      const preview = document.getElementById('preview');
+      const previewCode = document.getElementById('previewCode');
+      const copyBtns = document.querySelectorAll('.copy-btn');
+      const hexField = document.getElementById('hexField');
+      const rgbField = document.getElementById('rgbField');
+      const hslField = document.getElementById('hslField');
+      
+      function setError(field, err) {
+        field.classList.toggle('invalid', err);
+      }
+      function updateFromHex(val) {
+        setError(hexField, false);
+        if (!/^#?[0-9A-Fa-f]{6}$/.test(val)) { setError(hexField, true); return; }
+        val = val.replace('#','');
+        const r = parseInt(val.substr(0,2),16);
+        const g = parseInt(val.substr(2,2),16);
+        const b = parseInt(val.substr(4,2),16);
+        rgbInput.value = `rgb(${r},${g},${b})`;
+        const [h,s,l] = rgbToHsl(r,g,b);
+        hslInput.value = `hsl(${h},${s}%,${l}%)`;
+        preview.style.background = `#${val}`;
+        previewCode.textContent = `#${val}`;
+      }
+      function updateFromRgb(val) {
+        setError(rgbField, false);
+        const m = val.match(/[\\d]{1,3} *, *[\\d]{1,3} *, *[\\d]{1,3}/);
+        if (!m) { setError(rgbField, true); return; }
+        const [r,g,b] = val.replace(/[rgb()]/g,'').split(',').map(Number);
+        const hex = [r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+        hexInput.value = `#${hex}`;
+        const [h,s,l] = rgbToHsl(r,g,b);
+        hslInput.value = `hsl(${h},${s}%,${l}%)`;
+        preview.style.background = `#${hex}`;
+        previewCode.textContent = rgbInput.value;
+      }
+      function updateFromHsl(val) {
+        setError(hslField, false);
+        const m = val.match(/[\\d]{1,3} *, *[\\d]{1,3}% *, *[\\d]{1,3}%/);
+        if (!m) { setError(hslField, true); return; }
+        let [h,s,l] = val.replace(/[hsl()%]/g,'').split(',').map(Number);
+        let c = (1 - Math.abs(2*l/100 - 1)) * (s/100);
+        let x = c * (1 - Math.abs((h/60)%2 - 1));
+        let mVal = l/100 - c/2;
+        let rgb = [0,0,0];
+        if(h<60) rgb=[c,x,0]; else if(h<120) rgb=[x,c,0]; else if(h<180) rgb=[0,c,x];
+        else if(h<240) rgb=[0,x,c]; else if(h<300) rgb=[x,0,c]; else rgb=[c,0,x];
+        const [r,g,b] = rgb.map(v=>Math.round((v+mVal)*255));
+        const hex = [r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+        hexInput.value = `#${hex}`;
+        rgbInput.value = `rgb(${r},${g},${b})`;
+        preview.style.background = `#${hex}`;
+        previewCode.textContent = hslInput.value;
+      }
+      function rgbToHsl(r,g,b){r/=255,g/=255,b/=255;const max=Math.max(r,g,b),min=Math.min(r,g,b);let h=0,s=0,l=(max+min)/2;if(max!==min){const d=max-min; s=l>0.5?d/(2-max-min):d/(max+min); switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}h*=60;}return [Math.round(h),Math.round(s*100),Math.round(l*100)];}
+      hexInput.addEventListener('input',e=>updateFromHex(e.target.value));
+      rgbInput.addEventListener('input',e=>updateFromRgb(e.target.value));
+      hslInput.addEventListener('input',e=>updateFromHsl(e.target.value));
+      copyBtns.forEach(btn=>btn.addEventListener('click',()=>{const target=document.getElementById(btn.dataset.target);target.select();document.execCommand('copy');alert('복사되었습니다');}));
+      updateFromHex('#ffffff');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR 코드 생성기 - 툴모아</title>
+  <!-- Pretendard & Noto Sans KR -->
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4a0bdb;
+      --bg: #fff;
+      --text: #333;
+      --header-h: 56px;
+      --font: 'Pretendard','Noto Sans KR',sans-serif;
+    }
+    *,*::before,*::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); }
+    header {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: var(--header-h);
+      background: var(--primary-color);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1rem; z-index: 1000;
+    }
+    .logo { color: #fff; font-size: 1.25rem; font-weight: 700; cursor: pointer; }
+    .nav-links {
+      display: flex; gap: 1rem;
+      overflow-x: auto; white-space: nowrap;
+      -ms-overflow-style: none; scrollbar-width: none;
+    }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a { color: #fff; text-decoration: none; font-weight: 600; padding: .5rem; }
+    .nav-links a.active { border-bottom: 2px solid #fff; }
+
+    /* Mobile toggle */
+    .menu-toggle { display: none; flex-direction: column; gap: 4px; cursor: pointer; }
+    .menu-toggle span { width: 24px; height: 3px; background: #fff; border-radius: 2px; }
+    .mobile-nav { display: none; position: absolute; top: var(--header-h); left: 0; width: 100%; background: var(--primary-color); flex-direction: column; }
+    .mobile-nav a { padding: 1rem; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.2); }
+    .mobile-nav a.active { background: rgba(255,255,255,.1); }
+
+    /* Main content spacing increased */
+    main { padding: calc(var(--header-h) + 4rem) 1rem 1rem; max-width: 600px; margin: 0 auto; text-align: center; }
+    h1 { font-size: 1.75rem; margin-bottom: .75rem; }
+    .subtitle { font-size: 1rem; color: #555; margin-bottom: 2rem; }
+
+    .form-group, .option-group, .download-group {
+      display: flex; gap: 1rem; justify-content: center; align-items: center; margin-top: 1rem;
+    }
+    .form-group input {
+      flex: 1; padding: .75rem; font-size: 1rem;
+      border: 1px solid #ccc; border-radius: 4px;
+    }
+    .form-group button {
+      padding: .75rem 1.5rem; background: var(--primary-color);
+      color: #fff; border: none; border-radius: 4px;
+      cursor: pointer; font-size: 1rem;
+    }
+    /* Show native color pickers, sized larger */
+    .option-group label {
+      font-size: .9rem; color: #555;
+      display: flex; flex-direction: column; align-items: flex-start;
+    }
+    .option-group input[type="color"], .option-group select, .option-group input[type="number"] {
+      margin-top: .25rem; padding: .5rem;
+      border: 1px solid #ccc; border-radius: 4px;
+      font-size: 1rem; cursor: pointer;
+    }
+    .option-group input[type="color"] {
+      width: 64px; height: 40px; padding: 0; border: none;
+    }
+    .option-group button {
+      padding: .5rem 1rem; background: var(--primary-color);
+      color: #fff; border: none; border-radius: 4px;
+      cursor: pointer; font-size: .95rem;
+    }
+    .download-group button {
+      padding: .5rem 1.5rem; background: #444;
+      color: #fff; border: none; border-radius: 4px;
+      cursor: pointer; font-size: 1rem;
+    }
+    #qrcode { margin-top: 2.5rem; display: inline-block; }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .menu-toggle { display: flex; }
+      .mobile-nav.open { display: flex; }
+      .form-group, .option-group, .download-group { flex-direction: column; gap: .75rem; }
+      .form-group input, .form-group button, .option-group select, input[type=number], .download-group button { width: 100%; }
+      /* Show color input full width on mobile */
+      .option-group input[type="color"] { width: 100%; height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" onclick="location.href='index.html'">툴모아</div>
+    <nav class="nav-links">
+      <a href="character-count.html">글자수 세기</a>
+      <a href="qr-code.html">QR 코드 생성기</a>
+      <a href="password-generator.html">비밀번호 생성기</a>
+      <a href="date-calculator.html">날짜 계산기</a>
+      <a href="unit-converter.html">단위 변환기</a>
+      <a href="color-converter.html">색상 코드 변환기</a>
+      <a href="url-encoder.html">URL 인코더/디코더</a>
+      <a href="base64.html">Base64 인코더/디코더</a>
+    </nav>
+    <div class="menu-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <nav class="mobile-nav" id="mobileNav">
+      <a href="character-count.html">글자수 세기</a>
+      <a href="qr-code.html">QR 코드 생성기</a>
+      <a href="password-generator.html">비밀번호 생성기</a>
+      <a href="date-calculator.html">날짜 계산기</a>
+      <a href="unit-converter.html">단위 변환기</a>
+      <a href="color-converter.html">색상 코드 변환기</a>
+      <a href="url-encoder.html">URL 인코더/디코더</a>
+      <a href="base64.html">Base64 인코더/디코더</a>
+    </nav>
+  </header>
+  <main>
+    <h1>QR 코드 생성기</h1>
+    <p class="subtitle">URL 또는 텍스트를 입력하고 '생성' 버튼을 눌러주세요.</p>
+    <div class="form-group">
+      <input type="text" id="qrText" placeholder="URL 또는 텍스트 입력">
+      <button id="generateBtn">생성</button>
+    </div>
+    <div class="option-group">
+      <label>전경색<input type="color" id="fgColor" value="#000000"></label>
+      <label>배경색<input type="color" id="bgColor" value="#ffffff"></label>
+      <label>크기(px)<input type="number" id="sizeInput" value="200" min="100" max="1000"></label>
+      <label>오류 보정<select id="errorLevel"><option value="L">L (Low)</option><option value="M" selected>M (Medium)</option><option value="Q">Q (Quartile)</option><option value="H">H (High)</option></select></label>
+      <button id="applyOptions">적용</button>
+    </div>
+    <div id="qrcode"></div>
+    <div class="download-group">
+      <button id="downloadPng">PNG 다운로드</button>
+      <button id="downloadSvg">SVG 다운로드</button>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
+  <script>
+    function toggleMenu(){ document.getElementById('mobileNav').classList.toggle('open'); }
+    window.addEventListener('DOMContentLoaded', () => {
+      const current = location.pathname.split('/').pop();
+      document.querySelectorAll('.nav-links a, .mobile-nav a').forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === current);
+      });
+    });
+    const qrText = document.getElementById('qrText');
+    const generateBtn = document.getElementById('generateBtn');
+    const fgColor = document.getElementById('fgColor');
+    const bgColor = document.getElementById('bgColor');
+    const sizeInput = document.getElementById('sizeInput');
+    const errorLevel = document.getElementById('errorLevel');
+    const applyOptions = document.getElementById('applyOptions');
+    const qrcodeContainer = document.getElementById('qrcode');
+    let lastSvg = '';
+    function generateQRCode() {
+      const text = qrText.value.trim();
+      qrcodeContainer.innerHTML = '';
+      if (!text) return;
+      const size = parseInt(sizeInput.value, 10);
+      const opts = { errorCorrectionLevel: errorLevel.value, width: size, color: { dark: fgColor.value, light: bgColor.value } };
+      QRCode.toString(text, { ...opts, type: 'svg' }, (err, svg) => { if (!err) lastSvg = svg; });
+      const canvas = document.createElement('canvas');
+      QRCode.toCanvas(canvas, text, opts, err => { if (err) console.error(err); qrcodeContainer.appendChild(canvas); });
+    }
+    generateBtn.addEventListener('click', generateQRCode);
+    applyOptions.addEventListener('click', generateQRCode);
+    qrText.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); generateQRCode(); }});
+    document.getElementById('downloadPng').addEventListener('click', () => {
+      const canvas = qrcodeContainer.querySelector('canvas'); if (!canvas) return;
+      const link = document.createElement('a'); link.href = canvas.toDataURL('image/png'); link.download = 'qrcode.png'; link.click();
+    });
+    document.getElementById('downloadSvg').addEventListener('click', () => {
+      if (!lastSvg) return;
+      const blob = new Blob([lastSvg], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a'); link.href = url; link.download = 'qrcode.svg'; link.click(); URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>

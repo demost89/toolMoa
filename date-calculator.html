@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>날짜 계산기 - 툴모아</title>
+  <!-- Pretendard & Noto Sans KR -->
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --primary-color: #4a0bdb; --bg: #fff; --text: #333; --header-h: 56px; --font: 'Pretendard','Noto Sans KR',sans-serif; }
+    *,*::before,*::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); }
+    header { position: fixed; top: 0; left: 0; width: 100%; height: var(--header-h); background: var(--primary-color); display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; z-index: 1000; }
+    .logo { color: #fff; font-size: 1.25rem; font-weight: 700; cursor: pointer; }
+    .nav-links { display: flex; gap: 1rem; overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a { color: #fff; text-decoration: none; font-weight: 600; padding: .5rem; }
+    .nav-links a.active { border-bottom: 2px solid #fff; }
+    .menu-toggle { display: none; flex-direction: column; gap: 4px; cursor: pointer; }
+    .menu-toggle span { width: 24px; height: 3px; background: #fff; border-radius: 2px; }
+    .mobile-nav { display: none; position: absolute; top: var(--header-h); left: 0; width: 100%; background: var(--primary-color); flex-direction: column; }
+    .mobile-nav a { padding: 1rem; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.2); }
+    .mobile-nav a.active { background: rgba(255,255,255,.1); }
+
+    main { padding: calc(var(--header-h) + 3.5rem) 1rem 2rem; max-width: 600px; margin: 0 auto; }
+    h1 { font-size: 1.75rem; margin-bottom: .75rem; text-align: center; }
+    .subtitle { font-size: 1rem; color: #555; margin-bottom: 2rem; text-align: center; }
+    h2 { font-size: 1.25rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--primary-color); }
+
+    .group { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; align-items: center; margin-bottom: 1rem; }
+    .group label { font-size: 1rem; color: #555; display: flex; flex-direction: column; align-items: flex-start; }
+    .group input[type=date], .group input[type=number] { margin-top: .25rem; padding: .5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; }
+    .group button { padding: .75rem 1.5rem; background: var(--primary-color); color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }
+
+    .result { text-align: center; margin-top: 1.5rem; font-size: 1.25rem; color: var(--text); }
+    .result p { margin: .5rem 0; }
+    .result p strong { font-size: 1.5rem; }
+
+    @media(max-width:600px) {
+      .nav-links { display: none; }
+      .menu-toggle { display: flex; }
+      .mobile-nav.open { display: flex; }
+      main { padding-top: calc(var(--header-h) + 3.5rem); }
+      .group { flex-direction: column; }
+      .group button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" onclick="location.href='index.html'">툴모아</div>
+    <nav class="nav-links">
+      <a href="character-count.html">글자수 세기</a>
+      <a href="qr-code.html">QR 코드 생성기</a>
+      <a href="password-generator.html">비밀번호 생성기</a>
+      <a href="date-calculator.html" class="active">날짜 계산기</a>
+      <a href="unit-converter.html">단위 변환기</a>
+      <a href="color-converter.html">색상 코드 변환기</a>
+      <a href="url-encoder.html">URL 인코더/디코더</a>
+      <a href="base64.html">Base64 인코더/디코더</a>
+    </nav>
+    <div class="menu-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <nav class="mobile-nav" id="mobileNav">
+      <a href="character-count.html">글자수 세기</a>
+      <a href="qr-code.html">QR 코드 생성기</a>
+      <a href="password-generator.html">비밀번호 생성기</a>
+      <a href="date-calculator.html">날짜 계산기</a>
+      <a href="unit-converter.html">단위 변환기</a>
+      <a href="color-converter.html">색상 코드 변환기</a>
+      <a href="url-encoder.html">URL 인코더/디코더</a>
+      <a href="base64.html">Base64 인코더/디코더</a>
+    </nav>
+  </header>
+  <main>
+    <h1>날짜 계산기</h1>
+    <p class="subtitle">두 날짜 차이와 기준일 오프셋 계산을 지원합니다.</p>
+
+    <section>
+      <h2>날짜 차이 계산</h2>
+      <div class="group">
+        <label>시작 날짜<input type="date" id="startDate"></label>
+        <label>종료 날짜<input type="date" id="endDate"></label>
+        <button id="diffBtn">차이 계산</button>
+        <button id="resetDiff">초기화</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>기준일 오프셋 계산</h2>
+      <div class="group">
+        <label>기준 날짜<input type="date" id="baseDate"></label>
+        <label>일수 (+/-)<input type="number" id="offsetDays" placeholder="0"></label>
+        <button id="offsetBtn">계산</button>
+        <button id="resetOffset">초기화</button>
+      </div>
+    </section>
+
+    <div class="result" id="result"></div>
+  </main>
+  <script>
+    function toggleMenu() { document.getElementById('mobileNav').classList.toggle('open'); }
+    window.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      document.querySelectorAll('input[type=date]').forEach(inp => inp.value = today);
+      document.getElementById('offsetDays').value = '';
+      const current = location.pathname.split('/').pop();
+      document.querySelectorAll('.nav-links a, .mobile-nav a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === current));
+
+      ['startDate','endDate','baseDate','offsetDays'].forEach(id => {
+        document.getElementById(id).addEventListener('keydown', e => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            if (id === 'offsetDays' || id === 'baseDate') document.getElementById('offsetBtn').click();
+            else document.getElementById('diffBtn').click();
+          }
+        });
+      });
+    });
+    const resultDiv = document.getElementById('result');
+    document.getElementById('diffBtn').addEventListener('click', () => {
+      const d1 = new Date(startDate.value);
+      const d2 = new Date(endDate.value);
+      const ms = Math.abs(d2 - d1);
+      const days = Math.floor(ms / 864e5);
+      const weeks = Math.floor(days / 7);
+      const rem = days % 7;
+      resultDiv.innerHTML = `<p>총 차이: <strong>${days}</strong>일 (${weeks}주 ${rem}일)</p>`;
+    });
+    document.getElementById('offsetBtn').addEventListener('click', () => {
+      const base = new Date(baseDate.value);
+      const offset = parseInt(offsetDays.value, 10) || 0;
+      base.setDate(base.getDate() + offset);
+      resultDiv.innerHTML = `<p>계산 결과 날짜: <strong>${base.toISOString().split('T')[0]}</strong></p>`;
+    });
+    document.getElementById('resetDiff').addEventListener('click', () => {
+      const today = new Date().toISOString().split('T')[0];
+      startDate.value = endDate.value = today;
+      resultDiv.innerHTML = '';
+    });
+    document.getElementById('resetOffset').addEventListener('click', () => {
+      const today = new Date().toISOString().split('T')[0];
+      baseDate.value = today;
+      offsetDays.value = '';
+      resultDiv.innerHTML = '';
+    });
+  </script>
+</body>
+</html>
